@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-
+#include <cassert>
 namespace QuadTree {
 
 const char *assertBadQuadrantMsg = "The passed points do not form a square";
