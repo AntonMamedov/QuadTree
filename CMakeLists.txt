@@ -5,4 +5,5 @@ set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB src "src/*.cpp")
 include_directories(include)
+add_subdirectory(unit_tests)
 add_executable(QuadTree ${src})
