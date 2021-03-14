@@ -1,13 +1,14 @@
 #pragma once
-#include <iostream>
 #include <cassert>
+#include <iostream>
 namespace QuadTree {
-
-const char *assertBadQuadrantMsg = "The passed points do not form a square";
 
 typedef std::pair<double, double> Point;
 
-class Quadrant {
+//Класс, содержащий крайние и центральную точки квадранта
+//Точки должны образовывать квадрат
+//Класс воспринимается как множество точек, входящих в квадрант
+class Quadrant final {
 private:
   Point nw;     //Северо-восточная точка
   Point ne;     //Северо-западная точка
@@ -15,80 +16,109 @@ private:
   Point se;     //Юго-западная точка
   Point center; //Центарльная точка
 public:
-  Quadrant(const Point &nw, const Point &ne, const Point &sw, const Point &se);
-  Quadrant(const Quadrant &other) = default;
-  Quadrant(Quadrant &&other) = default;
-  ~Quadrant() = default;
-  const Point &NorthWest() const;
-  const Point &SouthWest() const;
-  const Point &NorthEast() const;
-  const Point &SouthEast() const;
-  const Point &Center() const;
-  Point MidNorth() const;
-  Point MidSouth() const;
-  Point MidWest() const;
-  Point MidEast() const;
-
+  Quadrant(const Point &nw, const Point &ne, const Point &sw,
+           const Point &se) noexcept;
+  Quadrant(const Quadrant &other) noexcept = default;
+  Quadrant(Quadrant &&other) noexcept = default;
+  ~Quadrant() noexcept = default;
+  const Point &NorthWest() const noexcept;
+  const Point &SouthWest() const noexcept;
+  const Point &NorthEast() const noexcept;
+  const Point &SouthEast() const noexcept;
+  const Point &Center() const noexcept;
+  Point MidNorth() const noexcept;
+  Point MidSouth() const noexcept;
+  Point MidWest() const noexcept;
+  Point MidEast() const noexcept;
+  Quadrant CreateNwChildrenQuadrant() const noexcept;
+  Quadrant CreateNeChildrenQuadrant() const noexcept;
+  Quadrant CreateSwChildrenQuadrant() const noexcept;
+  Quadrant CreateSeChildrenQuadrant() const noexcept;
   Quadrant &operator=(const Quadrant &quad) = default;
   Quadrant &operator=(Quadrant &&quad) = default;
-  bool operator[](const Point &point) const;
+  friend bool operator==(const Quadrant &left, const Quadrant &right) = default;
+  bool operator[](const Point &point) const noexcept;
 };
 
 //Создание квадранта из угловых точек
 inline Quadrant::Quadrant(const Point &nw, const Point &ne, const Point &sw,
-                          const Point &se)
+                          const Point &se) noexcept
     : nw(nw), ne(ne), sw(sw), se(se) {
   //Проверка того, образуют ли переданные значения квадрант
   assert(nw.second + ne.second == sw.second + se.second &&
-         nw.first + sw.first == se.first + ne.first && assertBadQuadrantMsg);
+         nw.first + sw.first == se.first + ne.first &&
+         "The passed points do not form a square");
   center = Point((nw.first + sw.first) / 2, (nw.second + ne.second) / 2);
 }
 
 //Возвращает северо-западную точку
-inline const Point &Quadrant::NorthWest() const { return nw; }
+inline const Point &Quadrant::NorthWest() const noexcept { return nw; }
 
 //Возвращает северо-западную точку
-inline const Point &Quadrant::SouthWest() const { return sw; }
+inline const Point &Quadrant::SouthWest() const noexcept { return sw; }
 
 //Возвращает юго-западную точку точку
-inline const Point &Quadrant::NorthEast() const { return ne; }
+inline const Point &Quadrant::NorthEast() const noexcept { return ne; }
 
 //Возвращает юго-восточную точку
-inline const Point &Quadrant::SouthEast() const { return se; }
+inline const Point &Quadrant::SouthEast() const noexcept { return se; }
 
 //Возвращает сентраьную точку
-inline const Point &Quadrant::Center() const { return center; }
+inline const Point &Quadrant::Center() const noexcept { return center; }
 
 //Вычисляет центральную точку между северо-востоком и северо-западом
-inline Point Quadrant::MidNorth() const {
+inline Point Quadrant::MidNorth() const noexcept {
   return Point(nw.first, (nw.second + ne.second) / 2);
   ;
 }
 
 //Вычисляет центральную точку между юго-востоком и юго-западом
-inline Point Quadrant::MidSouth() const {
+inline Point Quadrant::MidSouth() const noexcept {
   return Point(sw.first, (sw.second + se.second) / 2);
   ;
 }
 
 //Вычисляет центральную точку между с и юго-западом и северо-западом
-inline Point Quadrant::MidWest() const {
+inline Point Quadrant::MidWest() const noexcept {
   return Point((nw.first + sw.first) / 2, nw.second);
-  ;
 }
 
 //Вычисляет центральную точку между с и юго-востоком и северо-востоком
-inline Point Quadrant::MidEast() const {
+inline Point Quadrant::MidEast() const noexcept {
   return Point((ne.first + se.first) / 2, ne.second);
 }
 
 //Проверка вхождения точки в квадрант
 //Если точка находится в множестве точек квадранта, возвращает true
-inline bool Quadrant::operator[](const Point &point) const {
+inline bool Quadrant::operator[](const Point &point) const noexcept {
   return point.first <= nw.first && point.second >= nw.second &&
          point.first <= ne.first && point.second <= ne.second &&
          point.first >= sw.first && point.second >= sw.second &&
          point.first >= se.first && point.second <= se.second;
+}
+
+//Создает квадрант, составляющий 1/4 от размера родительского
+//И находящийся в северо-западной зоне
+Quadrant Quadrant::CreateNwChildrenQuadrant() const noexcept {
+  return Quadrant(nw, MidNorth(), MidWest(), center);
+}
+
+//Создает квадрант, составляющий 1/4 от размера родительского
+//И находящийся в северо-восточной зоне
+Quadrant Quadrant::CreateNeChildrenQuadrant() const noexcept {
+  return Quadrant(MidNorth(), ne, center, MidEast());
+}
+
+//Создает квадрант, составляющий 1/4 от размера родительского
+//И находящийся в юго-западной зоне
+Quadrant Quadrant::CreateSwChildrenQuadrant() const noexcept {
+  return Quadrant(MidWest(), Center(), sw, MidSouth());
+}
+
+//Создает квадрант, составляющий 1/4 от размера родительского
+//И находящийся в юго-восточной зоне
+Quadrant Quadrant::CreateSeChildrenQuadrant() const noexcept {
+  return Quadrant(center, MidEast(), MidSouth(), se);
 }
 
 } // namespace QuadTree
