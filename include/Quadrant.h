@@ -34,8 +34,6 @@ public:
   Quadrant CreateNeChildrenQuadrant() const noexcept;
   Quadrant CreateSwChildrenQuadrant() const noexcept;
   Quadrant CreateSeChildrenQuadrant() const noexcept;
-  Quadrant &operator=(const Quadrant &quad) = default;
-  Quadrant &operator=(Quadrant &&quad) = default;
   friend bool operator==(const Quadrant &left, const Quadrant &right) = default;
   bool operator[](const Point &point) const noexcept;
 };
@@ -99,25 +97,25 @@ inline bool Quadrant::operator[](const Point &point) const noexcept {
 
 //Создает квадрант, составляющий 1/4 от размера родительского
 //И находящийся в северо-западной зоне
-Quadrant Quadrant::CreateNwChildrenQuadrant() const noexcept {
+inline Quadrant Quadrant::CreateNwChildrenQuadrant() const noexcept {
   return Quadrant(nw, MidNorth(), MidWest(), center);
 }
 
 //Создает квадрант, составляющий 1/4 от размера родительского
 //И находящийся в северо-восточной зоне
-Quadrant Quadrant::CreateNeChildrenQuadrant() const noexcept {
+inline Quadrant Quadrant::CreateNeChildrenQuadrant() const noexcept {
   return Quadrant(MidNorth(), ne, center, MidEast());
 }
 
 //Создает квадрант, составляющий 1/4 от размера родительского
 //И находящийся в юго-западной зоне
-Quadrant Quadrant::CreateSwChildrenQuadrant() const noexcept {
+inline Quadrant Quadrant::CreateSwChildrenQuadrant() const noexcept {
   return Quadrant(MidWest(), Center(), sw, MidSouth());
 }
 
 //Создает квадрант, составляющий 1/4 от размера родительского
 //И находящийся в юго-восточной зоне
-Quadrant Quadrant::CreateSeChildrenQuadrant() const noexcept {
+inline Quadrant Quadrant::CreateSeChildrenQuadrant() const noexcept {
   return Quadrant(center, MidEast(), MidSouth(), se);
 }
 
