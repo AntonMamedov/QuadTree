@@ -1,6 +1,7 @@
 #include "Node.h"
 #include <functional>
 #include <stack>
+
 namespace QuadTree {
 template <typename DataT> class QuadTree {
 private:
@@ -13,14 +14,16 @@ private:
                                                 size_t currentDeep);
 
 public:
-  explicit QuadTree(size_t deep);
+  explicit QuadTree(size_t deep, const Quadrant &quadrant);
   void Update(const Point &point, std::function<void(DataT &data)>);
   void Update(const Point &point,
               std::function<void(DataT &data, const Quadrant &)>);
 };
 
 template <typename DataT>
-QuadTree<DataT>::QuadTree(size_t deep) : deep(deep), root(nullptr) {}
+QuadTree<DataT>::QuadTree(size_t deep, const Quadrant &quadrant) : deep(deep) {
+  root = new Node<DataT>(quadrant);
+}
 
 //Создает новую ноду, соотвутствущую указанной точке и вызывает в этой ноде
 // callback Если нода уже созданна, то просто вызывается callback
@@ -32,9 +35,20 @@ void QuadTree<DataT>::Update(const Point &point,
     handler(current.value()->Data());
   }
 }
+
 template <typename DataT>
 void QuadTree<DataT>::Update(const Point &point,
-                             std::function<void(DataT &, const Quadrant &)>) {}
+                             std::function<void(DataT &, const Quadrant &)>) {
+  std::optional<Node<DataT> *> current = GoToTheLastLevel(point, root, 0);
+  if (current) {
+    handler(current.value()->Data(), current.value()->GetQuadrant());
+  }
+}
+
+//Принимает на вход точку
+//Ищет в каком квадранте она долна находиться, попутно создавая новые ноды
+//Спускаяется до самого глубокого уровня и возвращает ноду, содержащую квадрант
+//в котором должна находится точка
 template <typename DataT>
 std::optional<Node<DataT> *>
 QuadTree<DataT>::GoToTheLastLevel(const Point &point, Node<DataT> *current,
@@ -42,8 +56,8 @@ QuadTree<DataT>::GoToTheLastLevel(const Point &point, Node<DataT> *current,
   if (current->GetQuadrant()[point]) {
     for (size_t i = currentDeep; i < deep; i++) {
       if (!current->ChildrenZones())
-        current->ChildrenSpawn();
-      current = current->ChoosingPath(point);
+        current->SpawnChildrenZone();
+      current = *current->ChoosingPath(point);
     }
     return current;
   } else
