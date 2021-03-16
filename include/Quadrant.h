@@ -34,7 +34,7 @@ public:
   Quadrant CreateNeChildrenQuadrant() const noexcept;
   Quadrant CreateSwChildrenQuadrant() const noexcept;
   Quadrant CreateSeChildrenQuadrant() const noexcept;
-  friend bool operator==(const Quadrant &left, const Quadrant &right) = default;
+  friend bool operator==(const Quadrant &left, const Quadrant &right);
   bool operator[](const Point &point) const noexcept;
 };
 
@@ -119,4 +119,8 @@ inline Quadrant Quadrant::CreateSeChildrenQuadrant() const noexcept {
   return Quadrant(center, MidEast(), MidSouth(), se);
 }
 
+inline bool operator==(const Quadrant &left, const Quadrant &right) {
+  return left.center == right.center && left.nw == right.nw &&
+         left.se == right.se;
+}
 } // namespace QuadTree

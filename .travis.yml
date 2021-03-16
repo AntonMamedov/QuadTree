@@ -12,7 +12,7 @@ install:
 script:
   - mkdir build && cd build
   - cmake ..
-  - make clean && make
+  - make
   - valgrind --tool=memcheck --leak-check=full unit_tests/Google_Tests_run
 
 after_success:

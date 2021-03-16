@@ -2,7 +2,7 @@
 #include "test_const.h"
 #include "gtest/gtest.h"
 
-TEST(Quadrant, TestСonstructorAndGetFuncs) {
+TEST(Quadrant, TestConstructorAndGetFuncs) {
   QuadTree::Quadrant quadrant(nw, ne, sw, se);
   ASSERT_EQ(nw, quadrant.NorthWest());
   ASSERT_EQ(ne, quadrant.NorthEast());
@@ -80,37 +80,37 @@ TEST(Quadrant, TestingPointsIncludedInTheQuadrant) {
   ASSERT_EQ(true, quadrant[p6]);
 }
 
-TEST(Quadrant, TestingBorderИorthPoint) {
+TEST(Quadrant, TestBorderNorthPoint) {
   QuadTree::Quadrant quadrant(nw, ne, sw, se);
   const QuadTree::Point p1(90, 36);
   ASSERT_EQ(true, quadrant[p1]);
 }
 
-TEST(Quadrant, TestingBorderSouthPoint) {
+TEST(Quadrant, TestBorderSouthPoint) {
   QuadTree::Quadrant quadrant(nw, ne, sw, se);
   const QuadTree::Point p1(-90, 36);
   ASSERT_EQ(true, quadrant[p1]);
 }
 
-TEST(Quadrant, TestingBorderWestPoint) {
+TEST(Quadrant, TestBorderWestPoint) {
   QuadTree::Quadrant quadrant(nw, ne, sw, se);
   const QuadTree::Point p1(-78, -180);
   ASSERT_EQ(true, quadrant[p1]);
 }
 
-TEST(Quadrant, TestingBorderEastPoint) {
+TEST(Quadrant, TestBorderEastPoint) {
   QuadTree::Quadrant quadrant(nw, ne, sw, se);
   const QuadTree::Point p1(-78, 180);
   ASSERT_EQ(true, quadrant[p1]);
 }
 
-TEST(Quadrant, TestingOutNorthPoint) {
+TEST(Quadrant, TestOutNorthPoint) {
   QuadTree::Quadrant quadrant(nw, ne, sw, se);
   const QuadTree::Point p1(91, 180);
   ASSERT_EQ(false, quadrant[p1]);
 }
 
-TEST(Quadrant, TestingOutSouthPoint) {
+TEST(Quadrant, TestOuntSouthPoint) {
   QuadTree::Quadrant quadrant(nw, ne, sw, se);
   const QuadTree::Point p1(-91, 180);
   ASSERT_EQ(false, quadrant[p1]);
