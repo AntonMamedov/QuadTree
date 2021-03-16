@@ -1,19 +1,52 @@
-arch: amd64
-os: linux
 dist: focal
+sudo: required  # используем Virtual Machine (а не Docker container)
 
 language: c++
+os:
+  - linux
+  - osx
 
-compiler: gcc
+compiler:
+  - gcc
+  - clang
 
-install:
-  - sudo apt-get install valgrind
+addons:
+  apt:
+    packages:
+      - valgrind
+      - make
+      - cmake
+      - lcov
+
+
+env:
+  # список переменных окружения, влияющих на матрицу сборки:
+  - TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+  - TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+  - TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+  - TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+
+
+matrix:
+  exclude:
+    # вручную исключим ненужные элементы из матрицы сборки:
+    - os: osx
+      compiler: gcc
+
+    - os: osx
+      env: TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+
+    - os: osx
+      env: TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 script:
-  - mkdir build && cd build
-  - cmake ..
-  - make
-  - valgrind --tool=memcheck --leak-check=full unit_tests/Google_Tests_run
-
+  - cd QuadTree
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU -DCMAKE_CXX_FLAGS="--coverage"
+  - cmake --build .
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "${CC_FOR_BUILD}" =~ gcc$ ]]; then valgrind --tool=memcheck --leak-check=yes ./unit_tests/Google_Tests_run; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "${CC_FOR_BUILD}" =~ gcc$ ]]; then lcov --capture --directory . --output-file coverage.info; fi
+  -
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "${CC_FOR_BUILD}" =~ gcc$ ]]; then bash <(curl -s https://codecov.io/bash); fi
