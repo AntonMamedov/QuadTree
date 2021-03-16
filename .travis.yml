@@ -1,10 +1,9 @@
 dist: focal
-sudo: required  # используем Virtual Machine (а не Docker container)
+sudo: required
 
 language: c++
 os:
   - linux
-  - osx
 
 compiler:
   - gcc
@@ -18,30 +17,15 @@ addons:
       - cmake
       - lcov
 
-
 env:
-  # список переменных окружения, влияющих на матрицу сборки:
   - TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
   - TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
   - TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
   - TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
-
-matrix:
-  exclude:
-    # вручную исключим ненужные элементы из матрицы сборки:
-    - os: osx
-      compiler: gcc
-
-    - os: osx
-      env: TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
-
-    - os: osx
-      env: TARGET_CPU=x86 BUILD_CONFIGURATION=Release
-
 script:
   - ls -a
-  - cd unit_tests
+  - cd  unit_tests
   - ls -a
   - git clone https://github.com/google/googletest.git && cd ..
   - mkdir build

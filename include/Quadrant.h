@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
 #include <iostream>
+
 namespace QuadTree {
 
 typedef std::pair<double, double> Point;
