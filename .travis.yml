@@ -40,7 +40,11 @@ matrix:
       env: TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 script:
-  - cd QuadTree/unit_tests
+  - ls -a
+  - cd QuadTree
+  - ls -a
+  - cd /unit_tests
+  - ls -a
   - git clone https://github.com/google/googletest.git && cd ..
   - mkdir build
   - cd build
