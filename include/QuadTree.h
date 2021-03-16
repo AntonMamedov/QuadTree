@@ -15,6 +15,7 @@ private:
 
 public:
   explicit QuadTree(size_t deep, const Quadrant &quadrant);
+  ~QuadTree();
   void Update(const Point &point, std::function<void(DataT &data)>);
   void Update(const Point &point,
               std::function<void(DataT &data, const Quadrant &)>);
@@ -24,6 +25,8 @@ template <typename DataT>
 QuadTree<DataT>::QuadTree(size_t deep, const Quadrant &quadrant) : deep(deep) {
   root = new Node<DataT>(quadrant);
 }
+
+template <typename DataT> QuadTree<DataT>::~QuadTree() { delete root; }
 
 //Создает новую ноду, соотвутствущую указанной точке и вызывает в этой ноде
 // callback Если нода уже созданна, то просто вызывается callback

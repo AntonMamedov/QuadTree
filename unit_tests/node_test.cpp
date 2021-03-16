@@ -77,6 +77,7 @@ TEST(Node, TestChoizNorthWestPath) {
   auto nwZone = node->ChoosingPath(nw);
   ASSERT_EQ(nwZone.value()->GetQuadrant(),
             QuadTree::Quadrant(nw, {n, center}, {center, w}, {center, center}));
+  delete node;
 }
 
 TEST(Node, TestChoizNorthEastPath) {
@@ -86,6 +87,7 @@ TEST(Node, TestChoizNorthEastPath) {
   auto neZone = node->ChoosingPath(ne);
   ASSERT_EQ(neZone.value()->GetQuadrant(),
             QuadTree::Quadrant({n, center}, ne, {center, center}, {center, e}));
+  delete node;
 }
 
 TEST(Node, TestChoizSouthWestPath) {
@@ -95,6 +97,7 @@ TEST(Node, TestChoizSouthWestPath) {
   auto swZone = node->ChoosingPath(sw);
   ASSERT_EQ(swZone.value()->GetQuadrant(),
             QuadTree::Quadrant({center, w}, {center, center}, sw, {s, center}));
+  delete node;
 }
 
 TEST(Node, TestChoizSouthEastPath) {
@@ -104,4 +107,5 @@ TEST(Node, TestChoizSouthEastPath) {
   auto seZone = node->ChoosingPath(se);
   ASSERT_EQ(seZone.value()->GetQuadrant(),
             QuadTree::Quadrant({center, center}, {center, e}, {s, center}, se));
+  delete node;
 }

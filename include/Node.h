@@ -81,6 +81,7 @@ Node<DataT>::ChoosingPath(const Point &point) noexcept {
     return GetSwZone();
   else if (point.first <= center.first && point.second >= center.second)
     return GetSeZone();
+  return std::nullopt;
 }
 
 //Проверка, есть ли у ноды наследники
