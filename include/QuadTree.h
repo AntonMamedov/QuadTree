@@ -12,6 +12,9 @@ private:
   std::optional<Node<DataT> *> GoToTheLastLevel(const Point &point,
                                                 Node<DataT> *current,
                                                 size_t currentDeep);
+  std::optional<Node<DataT> *>
+  GoToTheLastLevelAndCreateNode(const Point &point, Node<DataT> *current,
+                                size_t currentDeep);
 
 public:
   explicit QuadTree(size_t deep, const Quadrant &quadrant);
@@ -19,6 +22,9 @@ public:
   void Update(const Point &point, std::function<void(DataT &data)>);
   void Update(const Point &point,
               std::function<void(DataT &data, const Quadrant &)>);
+  bool Find(const Point &point, std::function<void(DataT &data)>);
+  bool Find(const Point &point,
+            std::function<void(DataT &data, const Quadrant &)>);
 };
 
 template <typename DataT>
@@ -28,34 +34,13 @@ QuadTree<DataT>::QuadTree(size_t deep, const Quadrant &quadrant) : deep(deep) {
 
 template <typename DataT> QuadTree<DataT>::~QuadTree() { delete root; }
 
-//Создает новую ноду, соотвутствущую указанной точке и вызывает в этой ноде
-// callback Если нода уже созданна, то просто вызывается callback
-template <typename DataT>
-void QuadTree<DataT>::Update(const Point &point,
-                             std::function<void(DataT &)> handler) {
-  std::optional<Node<DataT> *> current = GoToTheLastLevel(point, root, 0);
-  if (current) {
-    handler(current.value()->Data());
-  }
-}
-
-template <typename DataT>
-void QuadTree<DataT>::Update(const Point &point,
-                             std::function<void(DataT &, const Quadrant &)>) {
-  std::optional<Node<DataT> *> current = GoToTheLastLevel(point, root, 0);
-  if (current) {
-    handler(current.value()->Data(), current.value()->GetQuadrant());
-  }
-}
-
 //Принимает на вход точку
 //Ищет в каком квадранте она долна находиться, попутно создавая новые ноды
 //Спускаяется до самого глубокого уровня и возвращает ноду, содержащую квадрант
 //в котором должна находится точка
 template <typename DataT>
-std::optional<Node<DataT> *>
-QuadTree<DataT>::GoToTheLastLevel(const Point &point, Node<DataT> *current,
-                                  size_t currentDeep) {
+std::optional<Node<DataT> *> QuadTree<DataT>::GoToTheLastLevelAndCreateNode(
+    const Point &point, Node<DataT> *current, size_t currentDeep) {
   if (current->GetQuadrant()[point]) {
     for (size_t i = currentDeep; i < deep; i++) {
       if (!current->ChildrenZones())
@@ -65,6 +50,71 @@ QuadTree<DataT>::GoToTheLastLevel(const Point &point, Node<DataT> *current,
     return current;
   } else
     return std::nullopt;
+}
+
+//Принимает на вход точку
+//Ищет в каком квадранте она долна находиться
+//Спускаяется до самого глубокого уровня и возвращает ноду, содержащую квадрант
+//в котором должна находится точка
+//Если ноды не существует, возаращет std::nullopt
+template <typename DataT>
+std::optional<Node<DataT> *>
+QuadTree<DataT>::GoToTheLastLevel(const Point &point, Node<DataT> *current,
+                                  size_t currentDeep) {
+  if (current->GetQuadrant()[point]) {
+    for (size_t i = currentDeep; i < deep; i++) {
+      auto next = current->ChoosingPath(point);
+      if (next)
+        current = *next->ChoosingPath(point);
+      else
+        return std::nullopt;
+    }
+    return current;
+  } else
+    return std::nullopt;
+}
+
+//Создает новую ноду, соотвутствущую указанной точке и вызывает в этой ноде
+// callback Если нода уже созданна, то просто вызывается callback
+template <typename DataT>
+void QuadTree<DataT>::Update(const Point &point,
+                             std::function<void(DataT &)> handler) {
+  std::optional<Node<DataT> *> current =
+      GoToTheLastLevelAndCreateNode(point, root, 0);
+  if (current) {
+    handler(current.value()->Data());
+  }
+}
+
+template <typename DataT>
+void QuadTree<DataT>::Update(const Point &point,
+                             std::function<void(DataT &, const Quadrant &)>) {
+  std::optional<Node<DataT> *> current =
+      GoToTheLastLevelAndCreateNode(point, root, 0);
+  if (current) {
+    handler(current.value()->Data(), current.value()->GetQuadrant());
+  }
+}
+
+template <typename DataT>
+bool QuadTree<DataT>::Find(const Point &point, std::function<void(DataT &)>) {
+  std::optional<Node<DataT> *> current = GoToTheLastLevel(point, root, 0);
+  if (current) {
+    handler(current.value()->Data());
+    return true;
+  } else
+    return false;
+}
+
+template <typename DataT>
+bool QuadTree<DataT>::Find(const Point &point,
+                           std::function<void(DataT &, const Quadrant &)>) {
+  std::optional<Node<DataT> *> current = GoToTheLastLevel(point, root, 0);
+  if (current) {
+    handler(current.value()->Data(), current.value()->GetQuadrant());
+    return true;
+  } else
+    return false;
 }
 
 } // namespace QuadTree

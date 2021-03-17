@@ -36,3 +36,6 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "${CC_FOR_BUILD}" =~ gcc$ ]]; then lcov --capture --directory . --output-file coverage.info; fi
 after_success:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "${CC_FOR_BUILD}" =~ gcc$ ]]; then bash <(curl -s https://codecov.io/bash); fi
+
+
+
